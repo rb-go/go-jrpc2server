@@ -5,6 +5,7 @@
 
 package jsonrpc2
 
+// ErrorCode basic error code type
 type ErrorCode int
 
 const (
@@ -18,6 +19,7 @@ const (
 
 //var ErrNullResult = errors.New("result is null")
 
+// Error basic error struct for answer
 type Error struct {
 	// A Number that indicates the error type that occurred.
 	Code ErrorCode `json:"code"` /* required */

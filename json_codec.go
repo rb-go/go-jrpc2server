@@ -5,6 +5,8 @@ import (
 )
 
 var null = json.RawMessage([]byte("null"))
+
+// Version is JSON RPC version that allowed to use
 var Version = "2.0"
 
 // ----------------------------------------------------------------------------
@@ -47,4 +49,5 @@ type serverResponse struct {
 	Id *json.RawMessage `json:"id"`
 }
 
+// EmptyResponse empty response
 type EmptyResponse struct{}
