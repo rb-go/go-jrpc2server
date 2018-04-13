@@ -14,9 +14,13 @@
 ## Examples
 
 ### Benchmark results
+
 Tested on work PC (4 cores, 16gb memory, windows 10)
+
 Used memory on all benchmark time: 7.2 MB
+
 Used CPU on all benchmark time: 12%
+
 Load soft used on same PC: SuperBenchmark (sb)
 
 ![Benchmark Results](rps_results.png?raw=true "Benchmark Results")
