@@ -47,7 +47,7 @@ type serviceMethod struct {
 // HasMethod returns true if the given method is registered.
 //
 // The method uses a dotted notation as in "Service.Method".
-func (as *apiServer) HasMethod(method string) bool {
+func (as *apiServer) hasMethod(method string) bool {
 	if _, _, err := as.services.get(method); err == nil {
 		return true
 	}
@@ -292,7 +292,7 @@ func (as *apiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	// Decode the args.
 	args := reflect.New(methodSpec.argsType)
-	if errRead := ReadRequest(req, args.Interface()); errRead != nil {
+	if errRead := readRequest(req, args.Interface()); errRead != nil {
 
 		err = &Error{
 			Code:    E_INVALID_REQ,
@@ -347,7 +347,7 @@ func (as *apiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 	return
 }
 
-func ReadRequest(request *serverRequest, args interface{}) error {
+func readRequest(request *serverRequest, args interface{}) error {
 	if request.Params != nil {
 		// Note: if c.request.Params is nil it's not an error, it's an optional member.
 		// JSON params structured object. Unmarshal to the args object.
