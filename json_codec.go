@@ -27,7 +27,7 @@ type serverRequest struct {
 	// The request id. MUST be a string, number or null.
 	// Our implementation will not do type checking for id.
 	// It will be copied as it is.
-	Id *json.RawMessage `json:"id"`
+	ID *json.RawMessage `json:"id"`
 }
 
 // serverResponse represents a JSON-RPC response returned by the server.
@@ -46,7 +46,7 @@ type serverResponse struct {
 	Error *Error `json:"error,omitempty"`
 
 	// This must be the same id as the request it is responding to.
-	Id *json.RawMessage `json:"id"`
+	ID *json.RawMessage `json:"id"`
 }
 
 // EmptyResponse empty response

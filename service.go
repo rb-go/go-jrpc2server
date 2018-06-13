@@ -21,8 +21,8 @@ var (
 	typeOfRequest = reflect.TypeOf((*fasthttp.RequestCtx)(nil)).Elem()
 )
 
-// ApiServer - main structure
-type ApiServer struct {
+// APIServer - main structure
+type APIServer struct {
 	services *ServiceMap
 }
 
@@ -50,7 +50,7 @@ type ServiceMethod struct {
 // HasMethod returns true if the given method is registered.
 //
 // The method uses a dotted notation as in "Service.Method".
-func (as *ApiServer) hasMethod(method string) bool {
+func (as *APIServer) hasMethod(method string) bool {
 	if _, _, err := as.services.get(method); err == nil {
 		return true
 	}
@@ -73,7 +73,7 @@ func (as *ApiServer) hasMethod(method string) bool {
 //    - The method has return type error.
 //
 // All other methods are ignored.
-func (as *ApiServer) RegisterService(receiver interface{}, name string) error {
+func (as *APIServer) RegisterService(receiver interface{}, name string) error {
 	return as.services.register(receiver, name)
 }
 
@@ -104,7 +104,7 @@ func (m *ServiceMap) get(method string) (*Service, *ServiceMethod, error) {
 // GetAllServices returns an all registered services
 //
 // The method name uses a dotted notation as in "Service.Method".
-func (as *ApiServer) GetAllServices() (map[string]*Service, error) {
+func (as *APIServer) GetAllServices() (map[string]*Service, error) {
 	as.services.mutex.Lock()
 	service := as.services.services
 	as.services.mutex.Unlock()
@@ -210,14 +210,14 @@ func isExportedOrBuiltin(t reflect.Type) bool {
 }
 
 // NewServer returns a new RPC server.
-func NewServer() *ApiServer {
-	return &ApiServer{
+func NewServer() *APIServer {
+	return &APIServer{
 		services: new(ServiceMap),
 	}
 }
 
 // APIHandler handle api request, process it and return result
-func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
+func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	var err error
 
@@ -249,7 +249,7 @@ func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 		resp := &serverResponse{
 			Version: Version,
-			Id:      req.Id,
+			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
@@ -266,7 +266,7 @@ func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 		resp := &serverResponse{
 			Version: Version,
-			Id:      req.Id,
+			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
@@ -285,7 +285,7 @@ func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 		resp := &serverResponse{
 			Version: Version,
-			Id:      req.Id,
+			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
@@ -305,7 +305,7 @@ func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 		resp := &serverResponse{
 			Version: Version,
-			Id:      req.Id,
+			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
@@ -332,7 +332,7 @@ func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 		resp := &serverResponse{
 			Version: Version,
-			Id:      req.Id,
+			ID:      req.ID,
 			Error:   errResult,
 		}
 
@@ -342,7 +342,7 @@ func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	resp := &serverResponse{
 		Version: Version,
-		Id:      req.Id,
+		ID:      req.ID,
 		Result:  reply.Interface(),
 	}
 
