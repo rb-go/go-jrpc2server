@@ -8,8 +8,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/riftbit/fasthttp_json_rpc2)](https://goreportcard.com/report/github.com/riftbit/fasthttp_json_rpc2)
 
 ## System requirements 
-- github.com/valyala/fasthttp
-- tested on golang 1.10
+- github.com/erikdubbelboer/fasthttp (early valyala/fasthttp version used, but it not updates)
+- tested on golang 1.10.1
 
 ## Examples
 
@@ -31,7 +31,7 @@ Load soft used on same PC: SuperBenchmark (sb)
 package main
 
 import (
-	"github.com/valyala/fasthttp"
+	"github.com/erikdubbelboer/fasthttp"
 	"github.com/riftbit/fasthttp_json_rpc2"
 	"log"
 	"runtime"
@@ -46,12 +46,6 @@ func (h *DemoAPI) Test(ctx *fasthttp.RequestCtx, args *struct{ID string}, reply 
 	//log.Println(args)
 	reply.LogID = args.ID
 	return nil
-}
-
-func init() {
-	numCPU := runtime.NumCPU()
-	runtime.GOMAXPROCS(numCPU*10)
-	debug.SetMaxThreads(250)
 }
 
 func main() {
@@ -73,7 +67,7 @@ func main() {
 package main
 
 import (
-	"github.com/valyala/fasthttp"
+	"github.com/erikdubbelboer/fasthttp"
 	"github.com/riftbit/fasthttp_json_rpc2"
 	"log"
 	"runtime"
@@ -88,12 +82,6 @@ func (h *DemoAPI) Test(ctx *fasthttp.RequestCtx, args *struct{ID string}, reply 
 	//log.Println(args)
 	reply.LogID = args.ID
 	return nil
-}
-
-func init() {
-	numCPU := runtime.NumCPU()
-	runtime.GOMAXPROCS(numCPU*10)
-	debug.SetMaxThreads(250)
 }
 
 func main() {
@@ -123,8 +111,9 @@ func main() {
 package main
 
 import (
-	"github.com/valyala/fasthttp"
+	"github.com/erikdubbelboer/fasthttp"
 	"github.com/riftbit/fasthttp_json_rpc2"
+	"github.com/thehowl/fasthttprouter"
 	"log"
 	"runtime"
 	"runtime/debug"
@@ -140,11 +129,6 @@ func (h *DemoAPI) Test(ctx *fasthttp.RequestCtx, args *struct{ID string}, reply 
 	return nil
 }
 
-func init() {
-	numCPU := runtime.NumCPU()
-	runtime.GOMAXPROCS(numCPU*10)
-	debug.SetMaxThreads(250)
-}
 
 func main() {
 	api := jsonrpc2.NewServer()
@@ -153,17 +137,12 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	router := routing.New()
-
-    router.Post("/api", StartHandler, api.APIHandler, FinishHandler)
-    router.Post("/<node>/*", OptionsHandler)
-    router.Get("*", OptionsHandler)
-    router.Options("*", OptionsHandler)
-
+	router := fasthttprouter.New()
+    router.POST("/", mainHandler())
 
 	server := fasthttp.Server{
 		Name:    "AWESOME SERVER BY RIFTBIT.COM",
-		Handler: router.HandleRequest,
+		Handler: router.Handler,
 	}
 
 	Logger.Println("Started fasthttp server on port", config.System.ListenOn)
@@ -171,42 +150,37 @@ func main() {
 }
 
 
-func OptionsHandler(ctx *routing.Context) error {
-	ctx.Response.SetBody([]byte(`{"error": "this method not allowed"}`))
-	ctx.Response.SetStatusCode(405)
-	setServerHeaders(ctx)
-	ctx.Abort()
-	return nil
-}
+func mainHandler() fasthttp.RequestHandler {
+	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
+		stats := statsData{EventTime: time.Now()}
 
-func StartHandler(ctx *routing.Context) error {
-	nodeData, ok := NodesList[ctx.Param("node")]
-	if ok != true {
-		ctx.Response.SetBody([]byte(`{"error": "node not found"}`))
-		ctx.Response.SetStatusCode(404)
-		setServerHeaders(ctx)
-		ctx.Abort()
-		return nil
-	}
-	ctx.Set("TimeStarted", time.Now())
-	ctx.Set("NodeData", nodeData)
-	ctx.Set("UrlParams", strings.TrimPrefix(string(ctx.Path()), "/"+string(ctx.Param("node"))))
-	return nil
-}
+        //Here you can run any handlers you need
+		API.APIHandler(ctx)
 
-func FinishHandler(ctx *routing.Context) error {
-	startedAt := ctx.Get("TimeStarted").(time.Time)
-	NodeData := ctx.Get("NodeData").(nodeElement)
-	timeFinished := time.Since(startedAt)
-	urlPath := ctx.Get("UrlParams").(string)
+		ctx.Response.Header.Set("Server", ServerName)
+		ctx.Response.Header.Set("X-Powered-By", PoweredBy+build)
 
-	ipAddress := ctx.RemoteIP().String()
+		stats.UsedTime = time.Since(stats.EventTime)
+		stats.ClientIP = ctx.RemoteIP().String()
 
-	ctx.Request.Header.VisitAll(func(key, value []byte) {
-		if string(key) == "X-Forwarded-For" {
-			ipAddress = string(value)
-		}
+		ctx.Request.Header.VisitAll(func(key, value []byte) {
+			if string(key) == "X-Forwarded-For" {
+				stats.ClientIP = string(value)
+			}
+		})
+
+		stats.StatusCode = ctx.Response.StatusCode()
+		stats.Host = ctx.Request.Host()
+		stats.UserAgent = ctx.Request.Header.UserAgent()
+
+		stats.BodyReq = ctx.Request.Body()
+		stats.BodyResp = ctx.Response.Body()
+
+        /*
+        do something with stats :)
+        *./
+
+		return
 	})
-	return nil
 }
 ```
