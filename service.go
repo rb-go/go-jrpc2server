@@ -3,16 +3,14 @@ package jsonrpc2
 import (
 	"reflect"
 	"sync"
-
 	"fmt"
 	"strings"
 	"unicode"
 	"unicode/utf8"
-
 	"errors"
 
 	"github.com/pquerna/ffjson/ffjson"
-	"github.com/valyala/fasthttp"
+	"github.com/erikdubbelboer/fasthttp"
 )
 
 var (

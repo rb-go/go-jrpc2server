@@ -3,7 +3,7 @@ package jsonrpc2
 import (
 	"testing"
 
-	"github.com/valyala/fasthttp"
+	"github.com/erikdubbelboer/fasthttp"
 )
 
 // DemoAPI area

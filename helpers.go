@@ -1,8 +1,8 @@
 package jsonrpc2
 
 import (
+	"github.com/erikdubbelboer/fasthttp"
 	"github.com/pquerna/ffjson/ffjson"
-	"github.com/valyala/fasthttp"
 )
 
 func readRequest(request *serverRequest, args interface{}) error {
