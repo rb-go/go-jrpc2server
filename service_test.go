@@ -11,7 +11,6 @@ type DemoAPI struct{}
 
 // Test Method to test
 func (h *DemoAPI) Test(ctx *fasthttp.RequestCtx, args *struct{ ID string }, reply *struct{ LogID string }) error {
-	//log.Println(args)
 	reply.LogID = args.ID
 	return nil
 }

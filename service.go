@@ -21,24 +21,27 @@ var (
 	typeOfRequest = reflect.TypeOf((*fasthttp.RequestCtx)(nil)).Elem()
 )
 
-type apiServer struct {
-	services *serviceMap
+// ApiServer - main structure
+type ApiServer struct {
+	services *ServiceMap
 }
 
-// serviceMap is a registry for services.
-type serviceMap struct {
+// ServiceMap is a registry for services.
+type ServiceMap struct {
 	mutex    sync.Mutex
-	services map[string]*service
+	services map[string]*Service
 }
 
-type service struct {
+// Service - sub struct
+type Service struct {
 	name     string                    // name of service
 	rcvr     reflect.Value             // receiver of methods for the service
 	rcvrType reflect.Type              // type of the receiver
-	methods  map[string]*serviceMethod // registered methods
+	methods  map[string]*ServiceMethod // registered methods
 }
 
-type serviceMethod struct {
+// ServiceMethod - sub struct
+type ServiceMethod struct {
 	method    reflect.Method // receiver method
 	argsType  reflect.Type   // type of the request argument
 	replyType reflect.Type   // type of the response argument
@@ -47,7 +50,7 @@ type serviceMethod struct {
 // HasMethod returns true if the given method is registered.
 //
 // The method uses a dotted notation as in "Service.Method".
-func (as *apiServer) hasMethod(method string) bool {
+func (as *ApiServer) hasMethod(method string) bool {
 	if _, _, err := as.services.get(method); err == nil {
 		return true
 	}
@@ -70,14 +73,14 @@ func (as *apiServer) hasMethod(method string) bool {
 //    - The method has return type error.
 //
 // All other methods are ignored.
-func (as *apiServer) RegisterService(receiver interface{}, name string) error {
+func (as *ApiServer) RegisterService(receiver interface{}, name string) error {
 	return as.services.register(receiver, name)
 }
 
 // get returns a registered service given a method name.
 //
 // The method name uses a dotted notation as in "Service.Method".
-func (m *serviceMap) get(method string) (*service, *serviceMethod, error) {
+func (m *ServiceMap) get(method string) (*Service, *ServiceMethod, error) {
 	parts := strings.Split(method, ".")
 	if len(parts) != 2 {
 		err := fmt.Errorf("api: service/method request ill-formed: %q", method)
@@ -98,24 +101,24 @@ func (m *serviceMap) get(method string) (*service, *serviceMethod, error) {
 	return service, serviceMethod, nil
 }
 
-// GetAll returns an all registered services
+// GetAllServices returns an all registered services
 //
 // The method name uses a dotted notation as in "Service.Method".
-func (m *serviceMap) GetAll() (map[string]*service, error) {
-	m.mutex.Lock()
-	service := m.services
-	m.mutex.Unlock()
+func (as *ApiServer) GetAllServices() (map[string]*Service, error) {
+	as.services.mutex.Lock()
+	service := as.services.services
+	as.services.mutex.Unlock()
 	return service, nil
 }
 
 // register adds a new service using reflection to extract its methods.
-func (m *serviceMap) register(rcvr interface{}, name string) error {
+func (m *ServiceMap) register(rcvr interface{}, name string) error {
 	// Setup service.
-	s := &service{
+	s := &Service{
 		name:     name,
 		rcvr:     reflect.ValueOf(rcvr),
 		rcvrType: reflect.TypeOf(rcvr),
-		methods:  make(map[string]*serviceMethod),
+		methods:  make(map[string]*ServiceMethod),
 	}
 
 	if name == "" {
@@ -166,7 +169,7 @@ func (m *serviceMap) register(rcvr interface{}, name string) error {
 			continue
 		}
 
-		s.methods[method.Name] = &serviceMethod{
+		s.methods[method.Name] = &ServiceMethod{
 			method:    method,
 			argsType:  args.Elem(),
 			replyType: reply.Elem(),
@@ -182,7 +185,7 @@ func (m *serviceMap) register(rcvr interface{}, name string) error {
 	defer m.mutex.Unlock()
 
 	if m.services == nil {
-		m.services = make(map[string]*service)
+		m.services = make(map[string]*Service)
 	} else if _, ok := m.services[s.name]; ok {
 		return fmt.Errorf("api: service already defined: %q", s.name)
 	}
@@ -207,14 +210,14 @@ func isExportedOrBuiltin(t reflect.Type) bool {
 }
 
 // NewServer returns a new RPC server.
-func NewServer() *apiServer {
-	return &apiServer{
-		services: new(serviceMap),
+func NewServer() *ApiServer {
+	return &ApiServer{
+		services: new(ServiceMap),
 	}
 }
 
 // APIHandler handle api request, process it and return result
-func (as *apiServer) APIHandler(ctx *fasthttp.RequestCtx) {
+func (as *ApiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	var err error
 
@@ -222,7 +225,7 @@ func (as *apiServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 		err = &Error{
 			Code:    E_PARSE,
-			Message: errors.New("api: POST or GET method required, received " + string(ctx.Method())).Error(),
+			Message: errors.New("api: POST method required, received " + string(ctx.Method())).Error(),
 		}
 
 		resp := &serverResponse{
