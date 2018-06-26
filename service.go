@@ -219,6 +219,8 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	var err error
 
+	ctx.SetUserValue("apiMethod", "unknown")
+
 	if string(ctx.Method()) != "POST" {
 
 		err = &Error{
@@ -254,6 +256,8 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 		writeResponse(ctx, 400, resp)
 		return
 	}
+
+	ctx.SetUserValue("apiMethod", req.Method)
 
 	if req.Version != Version {
 		err = &Error{
