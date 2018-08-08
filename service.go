@@ -1,4 +1,4 @@
-package jsonrpc2
+package jrpc2server
 
 import (
 	"errors"
@@ -224,7 +224,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 	if string(ctx.Method()) != "POST" {
 
 		err = &Error{
-			Code:    E_PARSE,
+			Code:    JErrorParse,
 			Message: errors.New("api: POST method required, received " + string(ctx.Method())).Error(),
 		}
 
@@ -242,7 +242,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 	err = ffjson.Unmarshal(ctx.Request.Body(), req)
 	if err != nil {
 		err = &Error{
-			Code:    E_PARSE,
+			Code:    JErrorParse,
 			Message: err.Error(),
 			Data:    req,
 		}
@@ -261,7 +261,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	if req.Version != Version {
 		err = &Error{
-			Code:    E_INVALID_REQ,
+			Code:    JErrorInvalidReq,
 			Message: "jsonrpc must be " + Version,
 			Data:    req,
 		}
@@ -280,7 +280,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	if errGet != nil {
 		err = &Error{
-			Code:    E_INTERNAL,
+			Code:    JErrorInternal,
 			Message: errGet.Error(),
 			Data:    req,
 		}
@@ -300,7 +300,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 	if errRead := readRequest(req, args.Interface()); errRead != nil {
 
 		err = &Error{
-			Code:    E_INVALID_REQ,
+			Code:    JErrorInvalidReq,
 			Message: errRead.Error(),
 			Data:    req.Params,
 		}
