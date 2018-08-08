@@ -5,27 +5,28 @@
 
 package jrpc2server
 
-// ErrorCode basic error code type
+// ErrorCode type for error codes
 type ErrorCode int
 
 const (
-	// E_PARSE - parse error
-	E_PARSE ErrorCode = -32700
-	// E_INVALID_REQ - invalid request
-	E_INVALID_REQ ErrorCode = -32600
-	// E_NO_METHOD - method not found
-	E_NO_METHOD ErrorCode = -32601
-	// E_BAD_PARAMS - bad parametrs
-	E_BAD_PARAMS ErrorCode = -32602
-	// E_INTERNAL - internal error
-	E_INTERNAL ErrorCode = -32603
-	// E_SERVER - server error
-	E_SERVER ErrorCode = -32000
+	// JErrorParse Parse error - Invalid JSON was received by the server.
+	// An error occurred on the server while parsing the JSON text.
+	JErrorParse ErrorCode = -32700
+	// JErrorInvalidReq Invalid Request - The JSON sent is not a valid Request object.
+	JErrorInvalidReq ErrorCode = -32600
+	// JErrorNoMethod Method not found - The method does not exist / is not available.
+	JErrorNoMethod ErrorCode = -32601
+	// JErrorInvalidParams Invalid params - Invalid method parameter(s).
+	JErrorInvalidParams ErrorCode = -32602
+	// JErrorInternal Internal error - Internal JSON-RPC error.
+	JErrorInternal ErrorCode = -32603
+	// JErrorServer Server error - Reserved for implementation-defined server-errors.
+	JErrorServer ErrorCode = -32000
 )
 
 //var ErrNullResult = errors.New("result is null")
 
-// Error basic error struct for answer
+// Error basic error struct for API answer
 type Error struct {
 	// A Number that indicates the error type that occurred.
 	Code ErrorCode `json:"code"` /* required */
@@ -38,7 +39,7 @@ type Error struct {
 	Data interface{} `json:"data"` /* optional */
 }
 
-// Error returns error message string
+// Error returns error message in string format
 func (e *Error) Error() string {
 	return e.Message
 }
