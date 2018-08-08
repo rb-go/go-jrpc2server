@@ -1,4 +1,4 @@
-package jsonrpc2
+package jrpc2server
 
 import (
 	"encoding/json"
