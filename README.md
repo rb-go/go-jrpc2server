@@ -1,11 +1,13 @@
-# fasthttp_json_rpc2 (early beta)
+# jrpc2server (early beta)
 [Website](https://www.riftbit.com) | [Contributing](https://www.riftbit.com/How-to-Contribute)
 
-[![license](https://img.shields.io/github/license/riftbit/fasthttp_json_rpc2.svg)](LICENSE)
-[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](https://godoc.org/github.com/riftbit/fasthttp_json_rpc2)
-[![Coverage Status](https://coveralls.io/repos/github/riftbit/fasthttp_json_rpc2/badge.svg?branch=master)](https://coveralls.io/github/riftbit/fasthttp_json_rpc2?branch=master)
-[![Build Status](https://travis-ci.org/riftbit/fasthttp_json_rpc2.svg?branch=master)](https://travis-ci.org/riftbit/fasthttp_json_rpc2)
-[![Go Report Card](https://goreportcard.com/badge/github.com/riftbit/fasthttp_json_rpc2)](https://goreportcard.com/report/github.com/riftbit/fasthttp_json_rpc2)
+[![license](https://img.shields.io/github/license/riftbit/jrpc2server.svg)](LICENSE)
+[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](https://godoc.org/github.com/riftbit/jrpc2server)
+[![Coverage Status](https://coveralls.io/repos/github/riftbit/jrpc2server/badge.svg?branch=master)](https://coveralls.io/github/riftbit/jrpc2server?branch=master)
+[![Build Status](https://travis-ci.org/riftbit/jrpc2server.svg?branch=master)](https://travis-ci.org/riftbit/jrpc2server)
+[![Go Report Card](https://goreportcard.com/badge/github.com/riftbit/jrpc2server)](https://goreportcard.com/report/github.com/riftbit/jrpc2server)
+
+Golang package for easy creation JSON-RPC 2.0 API services.
 
 ## System requirements 
 - github.com/erikdubbelboer/fasthttp (early valyala/fasthttp version used, but it not updates)
@@ -32,7 +34,7 @@ package main
 
 import (
 	"github.com/erikdubbelboer/fasthttp"
-	"github.com/riftbit/fasthttp_json_rpc2"
+	"github.com/riftbit/jrpc2server"
 	"log"
 	"runtime"
 	"runtime/debug"
@@ -49,7 +51,7 @@ func (h *DemoAPI) Test(ctx *fasthttp.RequestCtx, args *struct{ID string}, reply 
 }
 
 func main() {
-	api := jsonrpc2.NewServer()
+	api := jrpc2server.NewServer()
 	err := api.RegisterService(new(DemoAPI), "demo")
 
 	if err != nil {
@@ -68,7 +70,7 @@ package main
 
 import (
 	"github.com/erikdubbelboer/fasthttp"
-	"github.com/riftbit/fasthttp_json_rpc2"
+	"github.com/riftbit/jrpc2server"
 	"log"
 	"runtime"
 	"runtime/debug"
@@ -85,7 +87,7 @@ func (h *DemoAPI) Test(ctx *fasthttp.RequestCtx, args *struct{ID string}, reply 
 }
 
 func main() {
-	api := jsonrpc2.NewServer()
+	api := jrpc2server.NewServer()
 	err := api.RegisterService(new(DemoAPI), "demo")
 
 	if err != nil {
@@ -112,7 +114,7 @@ package main
 
 import (
 	"github.com/erikdubbelboer/fasthttp"
-	"github.com/riftbit/fasthttp_json_rpc2"
+	"github.com/riftbit/jrpc2server"
 	"github.com/thehowl/fasthttprouter"
 	"log"
 	"runtime"
@@ -131,7 +133,7 @@ func (h *DemoAPI) Test(ctx *fasthttp.RequestCtx, args *struct{ID string}, reply 
 
 
 func main() {
-	api := jsonrpc2.NewServer()
+	api := jrpc2server.NewServer()
 	err := api.RegisterService(new(DemoAPI), "demo")
 	if err != nil {
 		log.Fatalln(err)
