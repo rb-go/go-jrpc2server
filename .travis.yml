@@ -7,12 +7,18 @@ os:
   - linux
 
 go:
-  - 1.10.1
-  - tip
+- 1.6
+- 1.7
+- 1.8
+- 1.9
+- 1.10
+- tip
 
 matrix:
   allow_failures:
-    - go: tip
+  - go: 1.6
+  - go: 1.7
+  - go: tip
 
 #branches:
 #  only:
@@ -27,7 +33,6 @@ notifications:
 
 install:
  - go get -t ./...
- - go get -u github.com/stretchr/testify/assert
  - go get -u github.com/golang/lint/golint
  - go get -u golang.org/x/tools/cmd/goimports
  - go get -u golang.org/x/tools/cmd/cover
