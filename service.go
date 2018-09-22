@@ -219,13 +219,37 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	var req *ServerRequest
 
-	if ctx.UserValue("PrepareDataHandlerRequestRun").(int) == 0 {
-		if ctx.UserValue("PrepareDataHandlerRequest").(*ServerRequest) == nil {
-			PrepareDataHandler(ctx)
+	isPrepareRunned := false
+	if n, ok := ctx.UserValue("PrepareDataHandlerRequestRun").(int); ok {
+		if n == 1 {
+			isPrepareRunned = true
 		}
 	}
 
+	if !isPrepareRunned {
+		PrepareDataHandler(ctx)
+	}
+
 	if _, ok := ctx.UserValue("PrepareDataHandlerRequestErr").(error); ok {
+		return
+	}
+
+	if _, ok := ctx.UserValue("PrepareDataHandlerRequest").(*ServerRequest); !ok {
+
+		err = &Error{
+			Code:    JErrorInternal,
+			Message: "PrepareDataError",
+			Data:    req,
+		}
+
+		resp := &ServerResponse{
+			Version: Version,
+			ID:      req.ID,
+			Error:   err.(*Error),
+		}
+
+		WriteResponse(ctx, 500, resp)
+
 		return
 	}
 
