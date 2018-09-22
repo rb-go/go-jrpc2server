@@ -13,8 +13,8 @@ var Version = "2.0"
 // Request and Response
 // ----------------------------------------------------------------------------
 
-// serverRequest represents a JSON-RPC request received by the server.
-type serverRequest struct {
+// ServerRequest represents a JSON-RPC request received by the server.
+type ServerRequest struct {
 	// JSON-RPC protocol.
 	Version string `json:"jsonrpc"`
 
@@ -30,8 +30,8 @@ type serverRequest struct {
 	ID *json.RawMessage `json:"id"`
 }
 
-// serverResponse represents a JSON-RPC response returned by the server.
-type serverResponse struct {
+// ServerResponse represents a JSON-RPC response returned by the server.
+type ServerResponse struct {
 	// JSON-RPC protocol.
 	Version string `json:"jsonrpc"`
 

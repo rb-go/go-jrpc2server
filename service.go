@@ -228,16 +228,16 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 			Message: errors.New("api: POST method required, received " + string(ctx.Method())).Error(),
 		}
 
-		resp := &serverResponse{
+		resp := &ServerResponse{
 			Version: Version,
 			Error:   err.(*Error),
 		}
 
-		writeResponse(ctx, 405, resp)
+		WriteResponse(ctx, 405, resp)
 		return
 	}
 
-	req := new(serverRequest)
+	req := new(ServerRequest)
 
 	err = ffjson.Unmarshal(ctx.Request.Body(), req)
 	if err != nil {
@@ -247,13 +247,13 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 			Data:    req,
 		}
 
-		resp := &serverResponse{
+		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
-		writeResponse(ctx, 400, resp)
+		WriteResponse(ctx, 400, resp)
 		return
 	}
 
@@ -266,13 +266,13 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 			Data:    req,
 		}
 
-		resp := &serverResponse{
+		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
-		writeResponse(ctx, 400, resp)
+		WriteResponse(ctx, 400, resp)
 		return
 	}
 
@@ -285,19 +285,19 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 			Data:    req,
 		}
 
-		resp := &serverResponse{
+		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
-		writeResponse(ctx, 400, resp)
+		WriteResponse(ctx, 400, resp)
 		return
 	}
 
 	// Decode the args.
 	args := reflect.New(methodSpec.argsType)
-	if errRead := readRequest(req, args.Interface()); errRead != nil {
+	if errRead := ReadRequest(req, args.Interface()); errRead != nil {
 
 		err = &Error{
 			Code:    JErrorInvalidReq,
@@ -305,13 +305,13 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 			Data:    req.Params,
 		}
 
-		resp := &serverResponse{
+		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
 			Error:   err.(*Error),
 		}
 
-		writeResponse(ctx, 400, resp)
+		WriteResponse(ctx, 400, resp)
 		return
 	}
 
@@ -332,22 +332,22 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	if errResult != nil {
 
-		resp := &serverResponse{
+		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
 			Error:   errResult,
 		}
 
-		writeResponse(ctx, 400, resp)
+		WriteResponse(ctx, 400, resp)
 		return
 	}
 
-	resp := &serverResponse{
+	resp := &ServerResponse{
 		Version: Version,
 		ID:      req.ID,
 		Result:  reply.Interface(),
 	}
 
-	writeResponse(ctx, 200, resp)
+	WriteResponse(ctx, 200, resp)
 	return
 }
