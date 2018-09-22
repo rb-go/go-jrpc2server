@@ -225,28 +225,11 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	if ctx.UserValue("PrepareDataHandlerRequestErr").(error) != nil {
+	if _, ok := ctx.UserValue("PrepareDataHandlerRequestErr").(error); ok {
 		return
 	}
 
 	req = ctx.UserValue("PrepareDataHandlerRequest").(*ServerRequest)
-
-	if req.Version != Version {
-		err = &Error{
-			Code:    JErrorInvalidReq,
-			Message: "jsonrpc must be " + Version,
-			Data:    req,
-		}
-
-		resp := &ServerResponse{
-			Version: Version,
-			ID:      req.ID,
-			Error:   err.(*Error),
-		}
-
-		WriteResponse(ctx, 400, resp)
-		return
-	}
 
 	serviceSpec, methodSpec, errGet := as.services.get(req.Method)
 

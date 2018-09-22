@@ -40,7 +40,7 @@ func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 
 	var err error
 
-	ctx.SetUserValue("PrepareDataHandlerRequestErr", nil)
+	ctx.SetUserValue("PrepareDataHandlerRequestErr", err)
 	ctx.SetUserValue("PrepareDataHandlerRequestRun", 1)
 
 	if string(ctx.Method()) != "POST" {
@@ -82,4 +82,23 @@ func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	ctx.SetUserValue("PrepareDataHandlerRequest", req)
+
+	if req.Version != Version {
+		err = &Error{
+			Code:    JErrorInvalidReq,
+			Message: "jsonrpc must be " + Version,
+			Data:    req,
+		}
+
+		resp := &ServerResponse{
+			Version: Version,
+			ID:      req.ID,
+			Error:   err.(*Error),
+		}
+
+		ctx.SetUserValue("PrepareDataHandlerRequestErr", err)
+		WriteResponse(ctx, 400, resp)
+		return
+	}
+
 }
