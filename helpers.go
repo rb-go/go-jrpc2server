@@ -2,6 +2,7 @@ package jrpc2server
 
 import (
 	"errors"
+
 	"github.com/erikdubbelboer/fasthttp"
 	"github.com/pquerna/ffjson/ffjson"
 )
