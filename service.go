@@ -297,7 +297,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	// Decode the args.
 	args := reflect.New(methodSpec.argsType)
-	if errRead := ReadRequest(req, args.Interface()); errRead != nil {
+	if errRead := ReadRequestParams(req, args.Interface()); errRead != nil {
 
 		err = &Error{
 			Code:    JErrorInvalidReq,

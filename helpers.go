@@ -5,7 +5,8 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 )
 
-func ReadRequest(request *ServerRequest, args interface{}) error {
+// ReadRequestParams getting request parametrs
+func ReadRequestParams(request *ServerRequest, args interface{}) error {
 	if request.Params != nil {
 		// Note: if c.request.Params is nil it's not an error, it's an optional member.
 		// JSON params structured object. Unmarshal to the args object.
@@ -23,6 +24,7 @@ func ReadRequest(request *ServerRequest, args interface{}) error {
 	return nil
 }
 
+// WriteResponse write response to client with status code and server response struct
 func WriteResponse(ctx *fasthttp.RequestCtx, status int, resp *ServerResponse) {
 	body, _ := ffjson.Marshal(resp)
 	ctx.SetBody(body)
