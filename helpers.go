@@ -1,6 +1,7 @@
 package jrpc2server
 
 import (
+	"errors"
 	"github.com/erikdubbelboer/fasthttp"
 	"github.com/pquerna/ffjson/ffjson"
 )
@@ -32,4 +33,53 @@ func WriteResponse(ctx *fasthttp.RequestCtx, status int, resp *ServerResponse) {
 	ctx.Response.Header.Set("x-content-type-options", "nosniff")
 	ctx.SetContentType("application/json; charset=utf-8")
 	ctx.SetStatusCode(status)
+}
+
+// PrepareDataHandler process basic data to context values PrepareDataHandlerRequestErr.(error) and PrepareDataHandlerRequest.(*ServerRequest) PrepareDataHandlerRequestRun.(int)
+func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
+
+	var err error
+
+	ctx.SetUserValue("PrepareDataHandlerRequestErr", nil)
+	ctx.SetUserValue("PrepareDataHandlerRequestRun", 1)
+
+	if string(ctx.Method()) != "POST" {
+
+		err = &Error{
+			Code:    JErrorParse,
+			Message: errors.New("api: POST method required, received " + string(ctx.Method())).Error(),
+		}
+
+		resp := &ServerResponse{
+			Version: Version,
+			Error:   err.(*Error),
+		}
+
+		ctx.SetUserValue("PrepareDataHandlerRequestErr", err)
+		WriteResponse(ctx, 405, resp)
+		return
+	}
+
+	req := new(ServerRequest)
+
+	err = ffjson.Unmarshal(ctx.Request.Body(), req)
+	if err != nil {
+		err = &Error{
+			Code:    JErrorParse,
+			Message: err.Error(),
+			Data:    req,
+		}
+
+		resp := &ServerResponse{
+			Version: Version,
+			ID:      req.ID,
+			Error:   err.(*Error),
+		}
+
+		ctx.SetUserValue("PrepareDataHandlerRequestErr", err)
+		WriteResponse(ctx, 400, resp)
+		return
+	}
+
+	ctx.SetUserValue("PrepareDataHandlerRequest", req)
 }

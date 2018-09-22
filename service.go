@@ -1,7 +1,6 @@
 package jrpc2server
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/erikdubbelboer/fasthttp"
-	"github.com/pquerna/ffjson/ffjson"
 )
 
 var (
@@ -219,45 +217,19 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	var err error
 
-	ctx.SetUserValue("apiMethod", "unknown")
+	var req *ServerRequest
 
-	if string(ctx.Method()) != "POST" {
-
-		err = &Error{
-			Code:    JErrorParse,
-			Message: errors.New("api: POST method required, received " + string(ctx.Method())).Error(),
+	if ctx.UserValue("PrepareDataHandlerRequestRun").(int) == 0 {
+		if ctx.UserValue("PrepareDataHandlerRequest").(*ServerRequest) == nil {
+			PrepareDataHandler(ctx)
 		}
+	}
 
-		resp := &ServerResponse{
-			Version: Version,
-			Error:   err.(*Error),
-		}
-
-		WriteResponse(ctx, 405, resp)
+	if ctx.UserValue("PrepareDataHandlerRequestErr").(error) != nil {
 		return
 	}
 
-	req := new(ServerRequest)
-
-	err = ffjson.Unmarshal(ctx.Request.Body(), req)
-	if err != nil {
-		err = &Error{
-			Code:    JErrorParse,
-			Message: err.Error(),
-			Data:    req,
-		}
-
-		resp := &ServerResponse{
-			Version: Version,
-			ID:      req.ID,
-			Error:   err.(*Error),
-		}
-
-		WriteResponse(ctx, 400, resp)
-		return
-	}
-
-	ctx.SetUserValue("apiMethod", req.Method)
+	req = ctx.UserValue("PrepareDataHandlerRequest").(*ServerRequest)
 
 	if req.Version != Version {
 		err = &Error{
