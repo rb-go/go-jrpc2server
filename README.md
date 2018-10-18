@@ -10,7 +10,7 @@
 Golang package for easy creation JSON-RPC 2.0 API services.
 
 ## System requirements 
-- github.com/erikdubbelboer/fasthttp (early valyala/fasthttp version used, but it not updates)
+- github.com/valyala/fasthttp
 - tested on golang 1.10.1
 
 ## Examples
@@ -33,7 +33,7 @@ Load soft used on same PC: SuperBenchmark (sb)
 package main
 
 import (
-	"github.com/erikdubbelboer/fasthttp"
+	"github.com/valyala/fasthttp"
 	"github.com/riftbit/jrpc2server"
 	"log"
 	"runtime"
@@ -69,7 +69,7 @@ func main() {
 package main
 
 import (
-	"github.com/erikdubbelboer/fasthttp"
+	"github.com/valyala/fasthttp"
 	"github.com/riftbit/jrpc2server"
 	"log"
 	"runtime"
@@ -113,7 +113,7 @@ func main() {
 package main
 
 import (
-	"github.com/erikdubbelboer/fasthttp"
+	"github.com/valyala/fasthttp"
 	"github.com/riftbit/jrpc2server"
 	"github.com/thehowl/fasthttprouter"
 	"log"
