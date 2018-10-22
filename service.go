@@ -8,6 +8,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/riftbit/jrpc2errors"
 	"github.com/valyala/fasthttp"
 )
 
@@ -219,14 +220,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	var req *ServerRequest
 
-	isPrepareRunned := false
-	if n, ok := ctx.UserValue("PrepareDataHandlerRequestRun").(int); ok {
-		if n == 1 {
-			isPrepareRunned = true
-		}
-	}
-
-	if !isPrepareRunned {
+	if _, ok := ctx.UserValue("PrepareDataHandlerRequestRun").(int); !ok {
 		PrepareDataHandler(ctx)
 	}
 
@@ -236,8 +230,8 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 
 	if _, ok := ctx.UserValue("PrepareDataHandlerRequest").(*ServerRequest); !ok {
 
-		err = &Error{
-			Code:    JErrorInternal,
+		err = &jrpc2errors.Error{
+			Code:    jrpc2errors.InternalError,
 			Message: "PrepareDataError",
 			Data:    req,
 		}
@@ -245,7 +239,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
-			Error:   err.(*Error),
+			Error:   err.(*jrpc2errors.Error),
 		}
 
 		WriteResponse(ctx, 500, resp)
@@ -258,8 +252,8 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 	serviceSpec, methodSpec, errGet := as.services.get(req.Method)
 
 	if errGet != nil {
-		err = &Error{
-			Code:    JErrorInternal,
+		err = &jrpc2errors.Error{
+			Code:    jrpc2errors.InternalError,
 			Message: errGet.Error(),
 			Data:    req,
 		}
@@ -267,7 +261,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
-			Error:   err.(*Error),
+			Error:   err.(*jrpc2errors.Error),
 		}
 
 		WriteResponse(ctx, 400, resp)
@@ -278,8 +272,8 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 	args := reflect.New(methodSpec.argsType)
 	if errRead := ReadRequestParams(req, args.Interface()); errRead != nil {
 
-		err = &Error{
-			Code:    JErrorInvalidReq,
+		err = &jrpc2errors.Error{
+			Code:    jrpc2errors.InvalidRequestError,
 			Message: errRead.Error(),
 			Data:    req.Params,
 		}
@@ -287,7 +281,7 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
-			Error:   err.(*Error),
+			Error:   err.(*jrpc2errors.Error),
 		}
 
 		WriteResponse(ctx, 400, resp)
@@ -303,10 +297,10 @@ func (as *APIServer) APIHandler(ctx *fasthttp.RequestCtx) {
 		reply,
 	})
 
-	var errResult *Error
+	var errResult *jrpc2errors.Error
 	errInter := errValue[0].Interface()
 	if errInter != nil {
-		errResult = errInter.(*Error)
+		errResult = errInter.(*jrpc2errors.Error)
 	}
 
 	if errResult != nil {

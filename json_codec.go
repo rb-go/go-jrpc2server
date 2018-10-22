@@ -2,6 +2,7 @@ package jrpc2server
 
 import (
 	"encoding/json"
+	"github.com/riftbit/jrpc2errors"
 )
 
 var null = json.RawMessage([]byte("null"))
@@ -43,7 +44,7 @@ type ServerResponse struct {
 	// An Error object if there was an error invoking the method. It must be
 	// null if there was no error.
 	// As per spec the member will be omitted if there was no error.
-	Error *Error `json:"error,omitempty"`
+	Error *jrpc2errors.Error `json:"error,omitempty"`
 
 	// This must be the same id as the request it is responding to.
 	ID *json.RawMessage `json:"id"`

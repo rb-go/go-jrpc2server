@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/pquerna/ffjson/ffjson"
+	"github.com/riftbit/jrpc2errors"
 	"github.com/valyala/fasthttp"
 )
 
@@ -36,7 +37,7 @@ func WriteResponse(ctx *fasthttp.RequestCtx, status int, resp *ServerResponse) {
 	ctx.SetStatusCode(status)
 }
 
-// PrepareDataHandler process basic data to context values PrepareDataHandlerRequestErr.(error) and PrepareDataHandlerRequest.(*ServerRequest) PrepareDataHandlerRequestRun.(int)
+// PrepareDataHandler process basic data to context values PrepareDataHandlerRequestErr.(error) and PrepareDataHandlerRequest.(*ServerRequest) and PrepareDataHandlerRequestRun.(int)
 func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 
 	var err error
@@ -46,14 +47,14 @@ func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 
 	if string(ctx.Method()) != "POST" {
 
-		err = &Error{
-			Code:    JErrorParse,
+		err = &jrpc2errors.Error{
+			Code:    jrpc2errors.ParseError,
 			Message: errors.New("api: POST method required, received " + string(ctx.Method())).Error(),
 		}
 
 		resp := &ServerResponse{
 			Version: Version,
-			Error:   err.(*Error),
+			Error:   err.(*jrpc2errors.Error),
 		}
 
 		ctx.SetUserValue("PrepareDataHandlerRequestErr", err)
@@ -65,8 +66,8 @@ func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 
 	err = ffjson.Unmarshal(ctx.Request.Body(), req)
 	if err != nil {
-		err = &Error{
-			Code:    JErrorParse,
+		err = &jrpc2errors.Error{
+			Code:    jrpc2errors.ParseError,
 			Message: err.Error(),
 			Data:    req,
 		}
@@ -74,7 +75,7 @@ func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
-			Error:   err.(*Error),
+			Error:   err.(*jrpc2errors.Error),
 		}
 
 		ctx.SetUserValue("PrepareDataHandlerRequestErr", err)
@@ -85,8 +86,8 @@ func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetUserValue("PrepareDataHandlerRequest", req)
 
 	if req.Version != Version {
-		err = &Error{
-			Code:    JErrorInvalidReq,
+		err = &jrpc2errors.Error{
+			Code:    jrpc2errors.InvalidRequestError,
 			Message: "jsonrpc must be " + Version,
 			Data:    req,
 		}
@@ -94,7 +95,7 @@ func PrepareDataHandler(ctx *fasthttp.RequestCtx) {
 		resp := &ServerResponse{
 			Version: Version,
 			ID:      req.ID,
-			Error:   err.(*Error),
+			Error:   err.(*jrpc2errors.Error),
 		}
 
 		ctx.SetUserValue("PrepareDataHandlerRequestErr", err)

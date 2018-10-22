@@ -11,6 +11,7 @@ Golang package for easy creation JSON-RPC 2.0 API services.
 
 ## System requirements 
 - github.com/valyala/fasthttp
+- github.com/riftbit/jrpc2errors
 - tested on golang 1.10.1
 
 ## Examples
