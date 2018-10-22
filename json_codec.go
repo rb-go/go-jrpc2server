@@ -2,6 +2,7 @@ package jrpc2server
 
 import (
 	"encoding/json"
+
 	"github.com/riftbit/jrpc2errors"
 )
 
